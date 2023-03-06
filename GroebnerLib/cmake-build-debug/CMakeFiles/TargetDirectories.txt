@@ -1,0 +1,3 @@
+C:/Users/Наиль/proga/Groebner-Basis/GroebnerLib/cmake-build-debug/CMakeFiles/GroebnerLib.dir
+C:/Users/Наиль/proga/Groebner-Basis/GroebnerLib/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/Наиль/proga/Groebner-Basis/GroebnerLib/cmake-build-debug/CMakeFiles/rebuild_cache.dir
