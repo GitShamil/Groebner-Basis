@@ -1,6 +1,0 @@
-#ifndef GROEBNERLIB_LIBRARY_H
-#define GROEBNERLIB_LIBRARY_H
-
-void hello();
-
-#endif //GROEBNERLIB_LIBRARY_H
