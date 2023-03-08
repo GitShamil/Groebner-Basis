@@ -1,9 +1,8 @@
 #include <iostream>
 #include "GroebnerLib/includes/Rational.h"
+#include "GroebnerLib/includes/Modular.h"
 
 int main() {
-    gb::fields::Rational a(20,5);
-    std::cout<<a.getNumerator();
-    std::cout << "Hello, World!" << std::endl;
-    return 0;
+    gb::fields::Modular<7> a(-20);
+    std::cout<<a.getNumber();
 }
