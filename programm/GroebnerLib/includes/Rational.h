@@ -12,6 +12,8 @@ namespace gb::fields {
         const int64_t &getNumerator() const noexcept;
         const int64_t &getDenominator() const noexcept;
 
+        bool isZero() const noexcept;
+
         friend bool operator<(const Rational &, const Rational &) noexcept;
         friend bool operator>(const Rational &, const Rational &) noexcept;
         friend bool operator<=(const Rational &, const Rational &) noexcept;

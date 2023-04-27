@@ -87,3 +87,7 @@ bool gb::operator==(const gb::Monom & one, const gb::Monom & two) noexcept {
     }
     return true;
 }
+
+bool gb::operator!=(const gb::Monom & one, const gb::Monom & two) noexcept {
+    return !(one == two);
+}
