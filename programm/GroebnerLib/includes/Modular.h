@@ -133,7 +133,7 @@ Modular<Order> &Modular<Order>::operator*=(const Modular &another) noexcept {
 
 template<uint64_t Order>
 Modular<Order> &Modular<Order>::operator/=(const Modular &another) {
-    number_ *= inverseElement(another);
+    number_ *= inverseElement(another).getNumber();
     reduce_();
     return *this;
 }
@@ -141,7 +141,7 @@ Modular<Order> &Modular<Order>::operator/=(const Modular &another) {
 template<uint64_t Order>
 Modular<Order> pow(const Modular<Order> &num, const uint64_t &power) {
     if (power < 0) {
-        return pow(InverseElement(num), -power);
+        return pow(inverseElement(num), -power);
     }
     if (power == 0) {
         return {1};
@@ -155,7 +155,7 @@ Modular<Order> pow(const Modular<Order> &num, const uint64_t &power) {
 
 template<uint64_t Order>
 Modular<Order> inverseElement(const Modular<Order> &num) {
-    if (num.GetNumber() == 0) {
+    if (num.getNumber() == 0) {
         throw std::invalid_argument("Trying inverse zero in modul field");
     }
     return pow(num, Order - 2);
