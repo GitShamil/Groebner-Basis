@@ -20,6 +20,8 @@ public:
 
     bool isDivisibleBy(const Monom&) const noexcept;
 
+    bool isInteger() const noexcept;
+
     Monom& operator*=(const Monom&) noexcept;
     friend Monom operator*(const Monom&, const Monom&) noexcept;
 

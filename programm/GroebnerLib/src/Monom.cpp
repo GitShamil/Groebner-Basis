@@ -91,3 +91,8 @@ bool gb::operator==(const gb::Monom & one, const gb::Monom & two) noexcept {
 bool gb::operator!=(const gb::Monom & one, const gb::Monom & two) noexcept {
     return !(one == two);
 }
+
+bool gb::Monom::isInteger() const noexcept {
+    return deg(*this) == 0;
+}
+
