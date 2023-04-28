@@ -17,19 +17,54 @@ public:
     Term(Field, const Monom &);
 
     const Field &getCoefficient() const noexcept;
-    const Monom& getMonom() const noexcept;
 
-    friend int64_t deg(const Term<Field>&) noexcept;
+    const Monom &getMonom() const noexcept;
 
-    bool isDivisibleBy(const Term<Field>&) const noexcept;
+    bool isInteger() const noexcept;
+
+    friend int64_t deg(const Term<Field> &) noexcept;
+
+    bool isDivisibleBy(const Term<Field> &) const noexcept;
 
     Term<Field> operator-() const noexcept;
 
-    Term<Field>& operator*=(const  Term<Field>&) noexcept;
-    Term<Field>& operator/=(const  Term<Field>&);
+    Term<Field> &operator*=(const Term<Field> &) noexcept;
 
-    Term<Field>& operator*=(const Field&) noexcept;
-    Term<Field>& operator/=(const Field&);
+    Term<Field> &operator/=(const Term<Field> &);
+
+    Term<Field> &operator*=(const Field &) noexcept;
+
+    Term<Field> &operator/=(const Field &);
+
+    template<typename Temp>
+    friend Term<Temp> operator*(const Term<Temp> &, const Term<Temp> &) noexcept;
+
+    template<typename Temp>
+    friend Term<Temp> operator/(const Term<Temp> &, const Term<Temp> &) noexcept;
+
+    template<typename Temp>
+    friend Term<Temp> operator/(const Term<Temp> &, const Temp &) noexcept;
+
+    template<typename Temp>
+    friend Term<Temp> operator*(const Term<Temp> &, const Temp &) noexcept;
+
+    template<typename Temp>
+    friend bool operator==(const Term<Temp> &, const Term<Temp> &) noexcept;
+
+    template<typename Temp>
+    friend bool operator!=(const Term<Temp> &, const Term<Temp> &) noexcept;
+
+    template<typename Temp>
+    friend bool operator==(const Term<Temp> &, const Temp &) noexcept;
+
+    template<typename Temp>
+    friend bool operator!=(const Term<Temp> &, const Temp &) noexcept;
+
+    template<typename Temp>
+    friend bool operator==(const Temp &, const Term<Temp> &) noexcept;
+
+    template<typename Temp>
+    friend bool operator!=(const Temp &, const Term<Temp> &) noexcept;
 
 
 private:
@@ -63,12 +98,18 @@ const Monom &Term<Field>::getMonom() const noexcept {
 }
 
 template<typename Field>
-int64_t deg(const Term<Field> & term) noexcept {
+bool Term<Field>::isInteger() const noexcept {
+    return monom_.isInteger();
+}
+
+
+template<typename Field>
+int64_t deg(const Term<Field> &term) noexcept {
     return deg(term.getMonom());
 }
 
 template<typename Field>
-bool Term<Field>::isDivisibleBy(const Term<Field> & another) const noexcept {
+bool Term<Field>::isDivisibleBy(const Term<Field> &another) const noexcept {
     return this->getMonom().isDivisibleBy(another.getMonom()) && another.coef_.isZero();
 }
 
@@ -78,31 +119,88 @@ Term<Field> Term<Field>::operator-() const noexcept {
 }
 
 template<typename Field>
-Term<Field> &Term<Field>::operator*=(const Term<Field> & another) noexcept {
-   coef_ *= another.getCoefficient();
-   monom_ *= another.getMonom();
-   return *this;
+Term<Field> &Term<Field>::operator*=(const Term<Field> &another) noexcept {
+    coef_ *= another.getCoefficient();
+    monom_ *= another.getMonom();
+    return *this;
 }
 
 template<typename Field>
-Term<Field> &Term<Field>::operator/=(const Term<Field> & another) {
+Term<Field> &Term<Field>::operator/=(const Term<Field> &another) {
     coef_ /= another.getCoefficient();
     monom_ /= another.getMonom();
     return *this;
 }
 
 template<typename Field>
-Term<Field> &Term<Field>::operator*=(const Field & num) noexcept {
+Term<Field> &Term<Field>::operator*=(const Field &num) noexcept {
     coef_ *= num;
     return *this;
 }
 
 template<typename Field>
-Term<Field> &Term<Field>::operator/=(const Field & num) {
+Term<Field> &Term<Field>::operator/=(const Field &num) {
     coef_ /= num;
     return *this;
 }
 
+template<typename Field>
+Term<Field> operator*(const Term<Field> &one, const Term<Field> &two) noexcept {
+    Term<Field> answer = one;
+    answer *= two;
+    return answer;
+}
+
+template<typename Field>
+Term<Field> operator/(const Term<Field> &one, const Term<Field> &two) noexcept {
+    Term<Field> answer = one;
+    answer /= two;
+    return answer;
+}
+
+template<typename Field>
+Term<Field> operator/(const Term<Field> &term, const Field &num) noexcept {
+    Term<Field> answer = term;
+    term /= num;
+    return term;
+}
+
+template<typename Field>
+Term<Field> operator*(const Term<Field> &term, const Field &num) noexcept {
+    Term<Field> answer = term;
+    term *= num;
+    return term;
+}
+
+template<typename Field>
+bool operator==(const Term<Field> &one, const Term<Field> &two) noexcept {
+    return one.monom_ == two.monom_ && one.coef_ == two.coef_;
+}
+
+template<typename Field>
+bool operator!=(const Term<Field> &one, const Term<Field> &two) noexcept {
+    return !(one == two);
+}
+
+template<typename Field>
+bool operator==(const Term<Field> &term, const Field &num) noexcept {
+    return term.isInteger() && num == term.coef_;
+}
+
+template<typename Field>
+bool operator!=(const Term<Field> &term, const Field &num) noexcept {
+    return !(term == num);
+}
+
+template<typename Field>
+bool operator==(const Field &num, const Term<Field> &term) noexcept {
+    return term == num;
+}
+
+template<typename Field>
+bool operator!=(const Field &num, const Term<Field> &term) noexcept {
+    return !(term == num);
+}
 
 }
 #endif //PROGRAMM_TERM_H
