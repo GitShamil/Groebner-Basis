@@ -14,11 +14,7 @@ public:
                 return one[i] < two[i];
             }
         }
-        if (one.size() > two.size()) {
-            return false;
-        } else {
-            return true;
-        }
+        return false;
     }
 };
 
@@ -27,6 +23,9 @@ class Reverse {
 public:
     template<typename Field>
     bool operator()(const Term<Field> &one, const Term<Field> &two) const noexcept {
+        if (one.getMonom() == two.getMonom()){
+            return false;
+        }
         C comp;
         return !(comp(one, two));
     }
