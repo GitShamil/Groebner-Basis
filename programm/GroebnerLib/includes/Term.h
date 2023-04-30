@@ -22,6 +22,12 @@ public:
 
     bool isInteger() const noexcept;
 
+    size_t size() const noexcept;
+
+    int64_t operator[](int64_t) const;
+
+    int64_t & operator[](int64_t);
+
     friend int64_t deg(const Term<Field> &) noexcept;
 
     bool isDivisibleBy(const Term<Field> &) const noexcept;
@@ -102,6 +108,20 @@ bool Term<Field>::isInteger() const noexcept {
     return monom_.isInteger();
 }
 
+template<typename Field>
+size_t Term<Field>::size() const noexcept{
+    return monom_.size();
+}
+
+template<typename Field>
+int64_t Term<Field>::operator[](int64_t index) const{
+    return monom_[index];
+}
+
+template<typename Field>
+int64_t &Term<Field>::operator[](int64_t index) {
+    return monom_[index];
+}
 
 template<typename Field>
 int64_t deg(const Term<Field> &term) noexcept {
