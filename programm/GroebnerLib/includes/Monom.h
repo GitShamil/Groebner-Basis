@@ -10,7 +10,7 @@ public:
     Monom();
     Monom(const std::vector<int64_t>&);
 
-    int64_t operator[](int64_t) const noexcept;
+    int64_t operator[](int64_t) const;
 
     int64_t & operator[](int64_t);
 
@@ -21,6 +21,8 @@ public:
     bool isDivisibleBy(const Monom&) const noexcept;
 
     bool isInteger() const noexcept;
+
+    size_t size() const noexcept;
 
     Monom& operator*=(const Monom&) noexcept;
     friend Monom operator*(const Monom&, const Monom&) noexcept;
