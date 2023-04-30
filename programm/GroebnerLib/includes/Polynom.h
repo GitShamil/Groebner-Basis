@@ -158,27 +158,23 @@ Polynom<Field, C> Polynom<Field, C>::operator-() const noexcept {
 template<typename Field, typename C>
 Polynom<Field, C> &Polynom<Field, C>::operator+=(const Term<Field> &term1) noexcept {
     auto term = term1;
+    if (term.getCoefficient().isZero()) {
+        return *this;
+    }
     auto pair = terms_.insert(term);
-    if (!term.getCoefficient().isZero())
-        if (pair.second) {
-            auto it_term = pair.first;
-            auto it_same_monom = terms_.end();
-            if (it_term != terms_.begin() && (std::prev(it_term))->getMonom() == it_term->getMonom()) {
-                it_same_monom = std::prev(it_term);
-            } else if (std::next(it_term) != terms_.end() && (std::next(it_term))->getMonom() == it_term->getMonom()) {
-                it_same_monom = std::next(it_term);
-            }
-            if (it_same_monom != terms_.end()) {
-                Field coef_new = it_same_monom->getCoefficient();
-                terms_.erase(it_same_monom);
-                terms_.erase(it_term);
-                terms_.insert(Term<Field>(term.getCoefficient() + coef_new, term.getMonom()));
-            }
-        } else {
-            auto it_term = pair.first;
-            terms_.erase(it_term);
-            terms_.insert(Term<Field>(term.getCoefficient() + term.getCoefficient(), term.getMonom()));
+    bool coef_zero = false;
+    if (!pair.second) {
+        auto &term_cur = *pair.first;
+        Term<Field> term_new(term_cur.getCoefficient() + term.getCoefficient(), term.getMonom());
+        if (term_new.getCoefficient().isZero()){
+            coef_zero = true;
         }
+        auto &unconct_term_cur = const_cast<Term<Field> &>(term_cur);
+        unconct_term_cur = term_new;
+    }
+    if (coef_zero){
+        terms_.erase(pair.first);
+    }
     return *this;
 }
 
@@ -202,16 +198,26 @@ Polynom<Field, C> &Polynom<Field, C>::operator*=(const Term<Field> &term1) noexc
 
 template<typename Field, typename C>
 Polynom<Field, C> &Polynom<Field, C>::operator+=(const Polynom<Field, C> &another) noexcept {
-    for (auto &term : another.getTerms()) {
-        *this += term;
+    if (this == &another) {
+        auto another_copy = another;
+        *this *= another_copy;
+    } else {
+        for (auto &term : another.getTerms()) {
+            *this += term;
+        }
     }
     return *this;
 }
 
 template<typename Field, typename C>
 Polynom<Field, C> &Polynom<Field, C>::operator-=(const Polynom<Field, C> &another) noexcept {
-    for (auto &term : another.getTerms()) {
-        *this -= term;
+    if (this == &another) {
+        auto another_copy = another;
+        *this *= another_copy;
+    } else {
+        for (auto &term : another.getTerms()) {
+            *this -= term;
+        }
     }
     return *this;
 }
@@ -224,7 +230,7 @@ Polynom<Field, C> &Polynom<Field, C>::operator*=(const Polynom<Field, C> &anothe
     } else {
         Polynom<Field, C> answer;
         for (auto &term : another.getTerms()) {
-            answer += *this * term;
+            answer += (*this * term);
         }
         *this = std::move(answer);
     }
