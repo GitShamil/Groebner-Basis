@@ -148,7 +148,7 @@ int64_t deg(const Polynom<Temp, AnotherC> &polinom) noexcept {
 
 template<typename Field, typename C>
 Polynom<Field, C> Polynom<Field, C>::operator-() const noexcept {
-    Polynom < Field, C > answer;
+    Polynom<Field, C> answer;
     for (auto &term : getTerms()) {
         answer.terms_.insert(-term);
     }
@@ -156,9 +156,10 @@ Polynom<Field, C> Polynom<Field, C>::operator-() const noexcept {
 }
 
 template<typename Field, typename C>
-Polynom<Field, C> &Polynom<Field, C>::operator+=(const Term<Field> &term) noexcept {
+Polynom<Field, C> &Polynom<Field, C>::operator+=(const Term<Field> &term1) noexcept {
+    auto term = term1;
     auto pair = terms_.insert(term);
-    if (term.getCoefficient().isZero())
+    if (!term.getCoefficient().isZero())
         if (pair.second) {
             auto it_term = pair.first;
             auto it_same_monom = terms_.end();
@@ -178,15 +179,18 @@ Polynom<Field, C> &Polynom<Field, C>::operator+=(const Term<Field> &term) noexce
             terms_.erase(it_term);
             terms_.insert(Term<Field>(term.getCoefficient() + term.getCoefficient(), term.getMonom()));
         }
+    return *this;
 }
 
 template<typename Field, typename C>
 Polynom<Field, C> &Polynom<Field, C>::operator-=(const Term<Field> &term) noexcept {
     *this += -term;
+    return *this;
 }
 
 template<typename Field, typename C>
-Polynom<Field, C> &Polynom<Field, C>::operator*=(const Term<Field> &term) noexcept {
+Polynom<Field, C> &Polynom<Field, C>::operator*=(const Term<Field> &term1) noexcept {
+    auto term = term1;
     for (auto it_cur = terms_.begin(); it_cur != terms_.end(); it_cur++) {
         auto &term_cur = *it_cur;
         auto multiplied_term = term_cur * term;
@@ -207,15 +211,22 @@ Polynom<Field, C> &Polynom<Field, C>::operator+=(const Polynom<Field, C> &anothe
 template<typename Field, typename C>
 Polynom<Field, C> &Polynom<Field, C>::operator-=(const Polynom<Field, C> &another) noexcept {
     for (auto &term : another.getTerms()) {
-        *this += -term;
+        *this -= term;
     }
     return *this;
 }
 
 template<typename Field, typename C>
 Polynom<Field, C> &Polynom<Field, C>::operator*=(const Polynom<Field, C> &another) noexcept {
-    for (auto &term : another.getTerms()) {
-        *this *= term;
+    if (this == &another) {
+        auto another_copy = another;
+        *this *= another_copy;
+    } else {
+        Polynom<Field, C> answer;
+        for (auto &term : another.getTerms()) {
+            answer += *this * term;
+        }
+        *this = std::move(answer);
     }
     return *this;
 }
