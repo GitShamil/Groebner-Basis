@@ -130,7 +130,7 @@ int64_t deg(const Term<Field> &term) noexcept {
 
 template<typename Field>
 bool Term<Field>::isDivisibleBy(const Term<Field> &another) const noexcept {
-    return this->getMonom().isDivisibleBy(another.getMonom()) && another.coef_.isZero();
+    return this->getMonom().isDivisibleBy(another.getMonom()) && !another.coef_.isZero();
 }
 
 template<typename Field>
