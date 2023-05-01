@@ -16,6 +16,8 @@ public:
 
     Term(Field, const Monom &);
 
+    Term(const Monom &);
+
     const Field &getCoefficient() const noexcept;
 
     const Monom &getMonom() const noexcept;
@@ -26,7 +28,7 @@ public:
 
     int64_t operator[](int64_t) const;
 
-    int64_t & operator[](int64_t);
+    int64_t &operator[](int64_t);
 
     friend int64_t deg(const Term<Field> &) noexcept;
 
@@ -94,6 +96,11 @@ Term<Field>::Term(Field num, const Monom &monom) {
 }
 
 template<typename Field>
+Term<Field>::Term(const Monom &monom) {
+    monom_ = monom;
+}
+
+template<typename Field>
 const Field &Term<Field>::getCoefficient() const noexcept {
     return coef_;
 }
@@ -109,12 +116,12 @@ bool Term<Field>::isInteger() const noexcept {
 }
 
 template<typename Field>
-size_t Term<Field>::size() const noexcept{
+size_t Term<Field>::size() const noexcept {
     return monom_.size();
 }
 
 template<typename Field>
-int64_t Term<Field>::operator[](int64_t index) const{
+int64_t Term<Field>::operator[](int64_t index) const {
     return monom_[index];
 }
 
@@ -221,6 +228,7 @@ template<typename Field>
 bool operator!=(const Field &num, const Term<Field> &term) noexcept {
     return !(term == num);
 }
+
 
 }
 #endif //PROGRAMM_TERM_H
