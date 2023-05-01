@@ -18,6 +18,28 @@ public:
     }
 };
 
+class GrLex {
+public:
+    template<typename Field>
+    bool operator()(const Term<Field> &one, const Term<Field> &two) const noexcept {
+        int64_t deg_one = deg(one);
+        int64_t deg_two= deg(two);
+        if (deg_one < deg_two){
+            return true;
+        }
+        if (deg_one > deg_two){
+            return false;
+        }
+        size_t minim_size = std::min(one.size(), two.size());
+        for (size_t i = 0; i < minim_size; ++i) {
+            if (one[i] != two[i]) {
+                return one[i] < two[i];
+            }
+        }
+        return false;
+    }
+};
+
 template<typename C>
 class Reverse {
 public:
