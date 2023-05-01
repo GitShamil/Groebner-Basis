@@ -30,7 +30,8 @@ public:
 
     int64_t &operator[](int64_t);
 
-    friend int64_t deg(const Term<Field> &) noexcept;
+    template<typename Temp>
+    friend int64_t deg(const Term<Temp> &) noexcept;
 
     bool isDivisibleBy(const Term<Field> &) const noexcept;
 
