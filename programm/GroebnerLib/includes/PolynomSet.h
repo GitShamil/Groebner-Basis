@@ -16,6 +16,7 @@ class PolynomSet {
 public:
     using container = std::vector<Polynom<Field, C>>;
     using iterator = typename container::iterator;
+    using const_iterator = typename container::const_iterator;
 
     PolynomSet();
 
@@ -44,15 +45,25 @@ public:
 
     iterator find(const Polynom<Field, C> &) const noexcept;
 
-    iterator begin() const noexcept;
+    iterator begin() noexcept;
 
-    iterator end() const noexcept;
+    iterator end() noexcept;
+
+    const_iterator begin() const noexcept;
+
+    const_iterator end() const noexcept;
 
     template<typename Temp, typename AnotherC>
     friend bool oneRedByPolynoms(const PolynomSet<Temp, AnotherC> &, Polynom<Temp, AnotherC> &) noexcept;
 
     template<typename Temp, typename AnotherC>
     friend bool redByPolynoms(const PolynomSet<Temp, AnotherC> &, Polynom<Temp, AnotherC> &) noexcept;
+
+    template<typename Temp, typename AnotherC>
+    friend PolynomSet<Temp, AnotherC> buchberg(const PolynomSet<Temp, AnotherC> &) noexcept;
+
+    template<typename Temp, typename AnotherC>
+    friend PolynomSet<Temp, AnotherC> buchbergV2(const PolynomSet<Temp, AnotherC> &) noexcept;
 
 
 private:
@@ -99,7 +110,13 @@ bool PolynomSet<Field, C>::isGroebnerBasis() const noexcept {
 }
 
 template<typename Field, typename C>
-typename std::vector<gb::Polynom<Field, C>>::iterator
+bool PolynomSet<Field, C>::isGroebnerBasisSure() const noexcept {
+    return (buchberg(*this) == *this);
+}
+
+
+template<typename Field, typename C>
+typename PolynomSet<Field, C>::container::iterator
 PolynomSet<Field, C>::pushBackPolynom(const Polynom<Field, C> &polynom) noexcept {
     polynoms_.push_back(polynom);
     return polynoms_.end() - 1;
@@ -110,6 +127,7 @@ void PolynomSet<Field, C>::removePolynom(const Polynom<Field, C> &polynom) {
     for (auto it = polynoms_.begin(); it != polynoms_.end(); ++it) {
         if (*it == polynom) {
             polynoms_.erase(it);
+            groebner_Basis_ = false;
             return;
         }
     }
@@ -117,6 +135,7 @@ void PolynomSet<Field, C>::removePolynom(const Polynom<Field, C> &polynom) {
 
 template<typename Field, typename C>
 typename PolynomSet<Field, C>::iterator PolynomSet<Field, C>::removePolynom(PolynomSet::iterator it) {
+    groebner_Basis_ = false;
     return polynoms_.erase(it);
 }
 
@@ -126,17 +145,30 @@ typename PolynomSet<Field, C>::iterator PolynomSet<Field, C>::find(const Polynom
 }
 
 template<typename Field, typename C>
-typename PolynomSet<Field, C>::iterator PolynomSet<Field, C>::begin() const noexcept {
+typename PolynomSet<Field, C>::container::iterator PolynomSet<Field, C>::begin() noexcept {
     return polynoms_.begin();
 }
 
 template<typename Field, typename C>
-typename PolynomSet<Field, C>::iterator PolynomSet<Field, C>::end() const noexcept {
+typename PolynomSet<Field, C>::container::iterator PolynomSet<Field, C>::end() noexcept {
+    return polynoms_.end();
+}
+
+template<typename Field, typename C>
+typename PolynomSet<Field, C>::container::const_iterator PolynomSet<Field, C>::begin() const noexcept {
+    return polynoms_.begin();
+}
+
+template<typename Field, typename C>
+typename PolynomSet<Field, C>::container::const_iterator PolynomSet<Field, C>::end() const noexcept {
     return polynoms_.end();
 }
 
 template<typename Temp, typename AnotherC>
 bool oneRedByPolynoms(const PolynomSet<Temp, AnotherC> &polynomSet, Polynom<Temp, AnotherC> &polynom) noexcept {
+    if (polynom.isZero()) {
+        return false;
+    }
     for (const auto &reducer : polynomSet) {
         if (polynom.getTerm(0).isDivisibleBy(reducer.getTerm(0))) {
             auto divided_term = polynom.getTerm(0) / reducer.getTerm(0);
@@ -159,6 +191,49 @@ bool redByPolynoms(const PolynomSet<Temp, AnotherC> &polynomSet, Polynom<Temp, A
         changed = oneRedByPolynoms(polynomSet, polynom);
     } while (changed);
     return number_of_changes > 0;
+}
+
+template<typename Temp, typename AnotherC>
+PolynomSet<Temp, AnotherC> buchberg(const PolynomSet<Temp, AnotherC> &polynoms) noexcept {
+    if (polynoms.isGroebnerBasis()) {
+        return polynoms;
+    }
+    PolynomSet<Temp, AnotherC> groebner_basis = polynoms;
+    int64_t t = polynoms.size() - 1;
+    std::unordered_map<int64_t, std::unordered_set<int64_t>> B{};
+    for (int64_t i = 0; i < polynoms.size(); ++i) {
+        for (int64_t j = i + 1; j < polynoms.size(); ++j) {
+            B[i].insert(j);
+        }
+    }
+    while (!B.empty()) {
+        auto pair = *B.begin();
+        std::pair<int64_t, int64_t> critical_pair = std::make_pair(pair.first, *pair.second.begin());
+        auto s_polynom = sPolynom(groebner_basis.getPolynom(critical_pair.first),
+                                  groebner_basis.getPolynom(critical_pair.second));
+        redByPolynoms(groebner_basis, s_polynom);
+        if (!s_polynom.isZero()) {
+            groebner_basis.pushBackPolynom(s_polynom);
+            ++t;
+            for (int64_t i = 0; i < t; ++i) {
+                B[i].insert(t);
+            }
+        }
+        B[critical_pair.first].erase(critical_pair.second);
+        if (B[critical_pair.first].empty()) {
+            B.erase(critical_pair.first);
+        }
+    }
+    groebner_basis.groebner_Basis_ = true;
+    return groebner_basis;
+}
+
+
+template<typename Temp, typename AnotherC>
+const PolynomSet<Temp, AnotherC> &buchbergV2(const PolynomSet<Temp, AnotherC> &polynoms) noexcept {
+    if (polynoms.isGroebnerBasis()) {
+        return polynoms;
+    }
 }
 
 
