@@ -23,9 +23,9 @@ public:
 
     PolynomSet(const container &);
 
-    const container &getPolynomials() const noexcept;
+    const container &getPolynoms() const noexcept;
 
-    const Polynom<Field, C> &getPolynomial(int64_t = 0) const;
+    const Polynom<Field, C> &getPolynom(int64_t = 0) const;
 
     bool empty() const noexcept;
 
@@ -38,11 +38,22 @@ public:
 
     typename container::iterator pushBackPolynom(const Polynom<Field, C> &) noexcept;
 
-    void removePolynomial(const Polynom<Field, C> &);
+    void removePolynom(const Polynom<Field, C> &);
 
-    iterator removePolynomial(iterator);
+    iterator removePolynom(iterator);
 
     iterator find(const Polynom<Field, C> &) const noexcept;
+
+    iterator begin() const noexcept;
+
+    iterator end() const noexcept;
+
+    template<typename Temp, typename AnotherC>
+    friend bool oneRedByPolynoms(const PolynomSet<Temp, AnotherC> &, Polynom<Temp, AnotherC> &) noexcept;
+
+    template<typename Temp, typename AnotherC>
+    friend bool redByPolynoms(const PolynomSet<Temp, AnotherC> &, Polynom<Temp, AnotherC> &) noexcept;
+
 
 private:
     bool groebner_Basis_ = false;
@@ -63,12 +74,12 @@ PolynomSet<Field, C>::PolynomSet(const PolynomSet::container &polynoms) {
 }
 
 template<typename Field, typename C>
-const typename PolynomSet<Field, C>::container &PolynomSet<Field, C>::getPolynomials() const noexcept {
+const typename PolynomSet<Field, C>::container &PolynomSet<Field, C>::getPolynoms() const noexcept {
     return polynoms_;
 }
 
 template<typename Field, typename C>
-const Polynom<Field, C> &PolynomSet<Field, C>::getPolynomial(int64_t index) const {
+const Polynom<Field, C> &PolynomSet<Field, C>::getPolynom(int64_t index) const {
     return polynoms_[index];
 }
 
@@ -95,7 +106,7 @@ PolynomSet<Field, C>::pushBackPolynom(const Polynom<Field, C> &polynom) noexcept
 }
 
 template<typename Field, typename C>
-void PolynomSet<Field, C>::removePolynomial(const Polynom<Field, C> &polynom) {
+void PolynomSet<Field, C>::removePolynom(const Polynom<Field, C> &polynom) {
     for (auto it = polynoms_.begin(); it != polynoms_.end(); ++it) {
         if (*it == polynom) {
             polynoms_.erase(it);
@@ -105,13 +116,49 @@ void PolynomSet<Field, C>::removePolynomial(const Polynom<Field, C> &polynom) {
 }
 
 template<typename Field, typename C>
-typename PolynomSet<Field, C>::iterator PolynomSet<Field, C>::removePolynomial(PolynomSet::iterator it) {
+typename PolynomSet<Field, C>::iterator PolynomSet<Field, C>::removePolynom(PolynomSet::iterator it) {
     return polynoms_.erase(it);
 }
 
 template<typename Field, typename C>
 typename PolynomSet<Field, C>::iterator PolynomSet<Field, C>::find(const Polynom<Field, C> &polynom) const noexcept {
     return std::find(polynoms_.begin(), polynoms_.end(), polynom);
+}
+
+template<typename Field, typename C>
+typename PolynomSet<Field, C>::iterator PolynomSet<Field, C>::begin() const noexcept {
+    return polynoms_.begin();
+}
+
+template<typename Field, typename C>
+typename PolynomSet<Field, C>::iterator PolynomSet<Field, C>::end() const noexcept {
+    return polynoms_.end();
+}
+
+template<typename Temp, typename AnotherC>
+bool oneRedByPolynoms(const PolynomSet<Temp, AnotherC> &polynomSet, Polynom<Temp, AnotherC> &polynom) noexcept {
+    for (const auto &reducer : polynomSet) {
+        if (polynom.getTerm(0).isDivisibleBy(reducer.getTerm(0))) {
+            auto divided_term = polynom.getTerm(0) / reducer.getTerm(0);
+            auto quotient_polynom = reducer * divided_term;
+            polynom -= quotient_polynom;
+            return true;
+        }
+    }
+    return false;
+}
+
+
+template<typename Temp, typename AnotherC>
+bool redByPolynoms(const PolynomSet<Temp, AnotherC> &polynomSet, Polynom<Temp, AnotherC> &polynom) noexcept {
+    bool changed;
+    int number_of_changes = -1;
+    do {
+        ++number_of_changes;
+        changed = false;
+        changed = oneRedByPolynoms(polynomSet, polynom);
+    } while (changed);
+    return number_of_changes > 0;
 }
 
 
