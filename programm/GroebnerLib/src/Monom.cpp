@@ -19,6 +19,9 @@ void gb::Monom::resizeTo(const gb::Monom &another) {
 }
 
 int64_t gb::Monom::operator[](int64_t index) const {
+    if (index >= data_.size()){
+        return 0;
+    }
     return data_[index];
 }
 
