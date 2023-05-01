@@ -32,6 +32,8 @@ public:
 
     friend bool operator==(const Monom&, const Monom&) noexcept;
     friend bool operator!=(const Monom&, const Monom&) noexcept;
+
+    friend Monom lcm(const Monom&, const Monom&) noexcept;
 private:
     friend size_t max_size(const Monom& one,const Monom& two);
     void resizeTo(const Monom& another);

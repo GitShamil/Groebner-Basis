@@ -18,11 +18,14 @@ void gb::Monom::resizeTo(const gb::Monom &another) {
     data_.resize(max_size(*this, another));
 }
 
-int64_t gb::Monom::operator[](int64_t index) const{
+int64_t gb::Monom::operator[](int64_t index) const {
     return data_[index];
 }
 
 int64_t &gb::Monom::operator[](int64_t index) {
+    if (data_.size() <= index) {
+        data_.resize(index + 1);
+    }
     return data_[index];
 }
 
@@ -40,7 +43,7 @@ const std::vector<int64_t> &gb::Monom::getData() const noexcept {
 }
 
 bool gb::Monom::isDivisibleBy(const gb::Monom &another) const noexcept {
-    for (size_t i = 0; i < getData().size(); ++i) {
+    for (size_t i = 0; i < another.getData().size(); ++i) {
         if (this->operator[](i) < another[i]) {
             return false;
         }
@@ -53,7 +56,7 @@ bool gb::Monom::isInteger() const noexcept {
     return deg(*this) == 0;
 }
 
-size_t gb::Monom::size() const noexcept{
+size_t gb::Monom::size() const noexcept {
     return data_.size();
 }
 
@@ -63,7 +66,7 @@ gb::Monom &gb::Monom::operator*=(const gb::Monom &another) noexcept {
     for (int i = 0; i < getData().size(); ++i) {
         this->operator[](i) += another[i];
     }
-
+    return *this;
 }
 
 gb::Monom gb::operator*(const gb::Monom &one, const gb::Monom &two) noexcept {
@@ -79,6 +82,7 @@ gb::Monom &gb::Monom::operator/=(const gb::Monom &another) noexcept {
             std::runtime_error("division isn't possible");
         }
     }
+    return *this;
 }
 
 gb::Monom gb::operator/(const gb::Monom &one, const gb::Monom &two) noexcept {
@@ -100,5 +104,13 @@ bool gb::operator==(const gb::Monom &one, const gb::Monom &two) noexcept {
 
 bool gb::operator!=(const gb::Monom &one, const gb::Monom &two) noexcept {
     return !(one == two);
+}
+
+gb::Monom gb::lcm(const gb::Monom &one, const gb::Monom &two) noexcept {
+    auto answer = one;
+    for (int i = 0; i < two.size(); ++i) {
+        answer[i] = std::max(one[i], two[i]);
+    }
+    return answer;
 }
 
