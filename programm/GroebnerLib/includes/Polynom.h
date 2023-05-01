@@ -20,11 +20,11 @@ public:
 
     Polynom(const container &);
 
-    const Term<Field> &getTerm(int64_t index) const;
+    const Term<Field> &getTerm(int64_t index = 0) const;
 
-    const Monom &getMonom(int64_t index) const;
+    const Monom &getMonom(int64_t index = 0) const;
 
-    const Field &getCoefficient(int64_t index) const;
+    const Field &getCoefficient(int64_t index = 0) const;
 
     const container &getTerms() const noexcept;
 
