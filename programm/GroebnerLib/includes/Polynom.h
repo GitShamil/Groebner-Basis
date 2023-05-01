@@ -28,6 +28,11 @@ public:
 
     const container &getTerms() const noexcept;
 
+    bool isZero() const noexcept;
+
+    template<typename Temp, typename AnotherC>
+    friend Polynom<Temp, AnotherC> sPolynom(const Polynom<Temp, AnotherC> &, const Polynom<Temp, AnotherC> &);
+
     template<typename Temp, typename AnotherC>
     friend int64_t deg(const gb::Polynom<Temp, AnotherC> &) noexcept;
 
@@ -90,7 +95,6 @@ public:
     template<typename Temp, typename AnotherC>
     friend bool operator!=(const Term<Temp> &, const Polynom<Temp, AnotherC> &) noexcept;
 
-
 private:
 
     container terms_{};
@@ -102,7 +106,8 @@ Polynom<Field, C>::Polynom() = default;
 
 template<typename Field, typename C>
 Polynom<Field, C>::Polynom(const Term<Field> &term) {
-    terms_.insert(term);
+    if (!term.getCoefficient().isZero())
+        terms_.insert(term);
 }
 
 template<typename Field, typename C>
@@ -137,6 +142,23 @@ const typename Polynom<Field, C>::container &Polynom<Field, C>::getTerms() const
     return terms_;
 }
 
+template<typename Field, typename C>
+bool Polynom<Field, C>::isZero() const noexcept {
+    return terms_.empty();
+}
+
+template<typename Temp, typename AnotherC>
+Polynom<Temp, AnotherC> sPolynom(const Polynom<Temp, AnotherC> &one, const Polynom<Temp, AnotherC> &two) {
+    if (one.isZero() || two.isZero()) {
+        throw std::runtime_error("No S-Polynomial from 0.");
+    }
+    auto lead_lcm = Term<Temp>(Temp(1),lcm(one.getMonom(0), two.getMonom(0)));
+    auto m1 = lead_lcm / one.getTerm(0);
+    auto m2 = lead_lcm / two.getTerm(0);
+    return one * m1 - two * m2;
+}
+
+
 template<typename Temp, typename AnotherC>
 int64_t deg(const Polynom<Temp, AnotherC> &polinom) noexcept {
     int64_t max_degree = 0;
@@ -166,13 +188,13 @@ Polynom<Field, C> &Polynom<Field, C>::operator+=(const Term<Field> &term1) noexc
     if (!pair.second) {
         auto &term_cur = *pair.first;
         Term<Field> term_new(term_cur.getCoefficient() + term.getCoefficient(), term.getMonom());
-        if (term_new.getCoefficient().isZero()){
+        if (term_new.getCoefficient().isZero()) {
             coef_zero = true;
         }
         auto &unconct_term_cur = const_cast<Term<Field> &>(term_cur);
         unconct_term_cur = term_new;
     }
-    if (coef_zero){
+    if (coef_zero) {
         terms_.erase(pair.first);
     }
     return *this;
