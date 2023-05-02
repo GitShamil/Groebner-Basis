@@ -301,6 +301,7 @@ PolynomSet<Temp, AnotherC> reduceGroebnerBasis(const PolynomSet<Temp, AnotherC> 
         redByPolynoms(groebner_basis, polynom);
         *it = std::move(polynom);
     }
+    groebner_basis.groebner_Basis_ = true;
     return groebner_basis;
 }
 

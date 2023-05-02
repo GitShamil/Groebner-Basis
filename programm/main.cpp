@@ -16,18 +16,18 @@ void test1() {
     auto term3 = gb::Term<gb::fields::Rational>(gb::fields::Rational(1), monom3);
     auto term4 = gb::Term<gb::fields::Rational>(gb::fields::Rational(-2), monom4);
     auto term5 = gb::Term<gb::fields::Rational>(gb::fields::Rational(1), monom5);
-    gb::Polynom<gb::fields::Rational, gb::GrLex> polinom1{};
+    gb::Polynom<gb::fields::Rational, gb::Lex> polinom1{};
     polinom1 += term1;
     polinom1 += term2;
-    gb::Polynom<gb::fields::Rational,gb::GrLex> polinom2{};
+    gb::Polynom<gb::fields::Rational,gb::Lex> polinom2{};
     polinom2 += term3;
     polinom2 += term4;
     polinom2 += term5;
-    auto polynoms = gb::PolynomSet<gb::fields::Rational,gb::GrLex>{};
+    auto polynoms = gb::PolynomSet<gb::fields::Rational,gb::Lex>{};
     polynoms.pushBackPolynom(polinom1);
     polynoms.pushBackPolynom(polinom2);
     auto answer = gb::reduceGroebnerBasis(polynoms);
-    std::cout << answer.isGroebnerBasis();
+ //   std::cout << answer.isGroebnerBasis();
 }
 
 int main() {
@@ -59,7 +59,14 @@ int main() {
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
     std::cout << "Time taken by function: " << duration.count() << " microseconds" << std::endl;*/
+    auto start_time = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < 10000; ++i) {
+        test1();
+    }
     test1();
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+    std::cout << "\n Time taken by function: " << duration.count() << " microseconds" << std::endl;
     std::set<int> a{1, 2, 3};
     auto b = a;
     a.insert(5);
