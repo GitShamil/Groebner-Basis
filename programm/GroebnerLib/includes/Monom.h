@@ -5,10 +5,13 @@
 
 namespace gb {
 
+
+
 class Monom {
 public:
     Monom();
     Monom(const std::vector<int64_t>&) noexcept;
+    Monom(std::initializer_list<int64_t>) noexcept;
 
     int64_t operator[](int64_t) const;
 

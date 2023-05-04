@@ -7,7 +7,7 @@
 
 namespace gb {
 
-template<typename Field>
+template<typename Field = fields::Rational>
 class Term {
 public:
     Term();

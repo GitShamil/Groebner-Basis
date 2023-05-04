@@ -10,6 +10,12 @@ gb::Monom::Monom(const std::vector<int64_t> &input) noexcept {
     data_ = input;
 }
 
+gb::Monom::Monom(std::initializer_list<int64_t> l) noexcept{
+    for(auto el: l) {
+        data_.push_back(el);
+    }
+}
+
 size_t gb::max_size(const gb::Monom &one, const gb::Monom &two) {
     return std::max(one.data_.size(), two.data_.size());
 }
@@ -116,4 +122,5 @@ gb::Monom gb::lcm(const gb::Monom &one, const gb::Monom &two) noexcept {
     }
     return answer;
 }
+
 

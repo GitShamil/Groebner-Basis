@@ -9,7 +9,7 @@
 
 namespace gb {
 
-template<typename Field, typename C = Lex>
+template<typename Field = fields::Rational, typename C = Lex>
 class Polynom {
 public:
     using container = std::set<Term<Field>, Reverse<C>>;
@@ -19,6 +19,8 @@ public:
     Polynom(const Term<Field> &) noexcept;
 
     Polynom(const container &) noexcept;
+
+    Polynom(std::initializer_list<Term<Field>>) noexcept;
 
     const Term<Field> &getTerm(int64_t index = 0) const;
 
@@ -114,6 +116,14 @@ template<typename Field, typename C>
 Polynom<Field, C>::Polynom(const Polynom::container &another_terms) noexcept{
     terms_ = another_terms;
 }
+
+template<typename Field, typename C>
+Polynom<Field, C>::Polynom(std::initializer_list<Term<Field>> l) noexcept{
+    for (auto& term : l){
+        terms_.insert(term);
+    }
+}
+
 
 template<typename Field, typename C>
 const Term<Field> &Polynom<Field, C>::getTerm(int64_t index) const {

@@ -18,5 +18,6 @@
 #include <utility>
 #include <vector>
 #include <unordered_set>
+#include <initializer_list>
 
 #endif //PROGRAMM_UTILS_H

@@ -24,6 +24,8 @@ public:
 
     PolynomSet(const container &) noexcept;
 
+    PolynomSet(std::initializer_list<Polynom<Field, C>>) noexcept;
+
     const container &getPolynoms() const noexcept;
 
     const Polynom<Field, C> &getPolynom(int64_t = 0) const;
@@ -93,6 +95,13 @@ PolynomSet<Field, C>::PolynomSet(const Polynom<Field, C> &polynom) noexcept {
 template<typename Field, typename C>
 PolynomSet<Field, C>::PolynomSet(const PolynomSet::container &polynoms) noexcept {
     polynoms_ = polynoms;
+}
+
+template<typename Field, typename C>
+PolynomSet<Field, C>::PolynomSet(std::initializer_list<Polynom<Field, C>> l) noexcept {
+    for (auto &polynom : l) {
+        polynoms_.push_back(polynom);
+    }
 }
 
 template<typename Field, typename C>
@@ -243,7 +252,8 @@ bool buchbergCriterion(const std::pair<int64_t, int64_t> &critical_pair, const P
                        const Polynom<Temp, AnotherC> &second_polynom,
                        const std::unordered_map<int64_t, std::unordered_set<int64_t>> &B,
                        const PolynomSet<Temp, AnotherC> &polynoms) {
-    if (lcm(first_polynom.getMonom(0), second_polynom.getMonom(0)) == first_polynom.getMonom(0) * second_polynom.getMonom(0)) {
+    if (lcm(first_polynom.getMonom(0), second_polynom.getMonom(0)) ==
+        first_polynom.getMonom(0) * second_polynom.getMonom(0)) {
         return true;
     }
     int64_t i = 0;
@@ -289,7 +299,7 @@ PolynomSet<Temp, AnotherC> buchberg(const PolynomSet<Temp, AnotherC> &polynoms, 
         std::pair<int64_t, int64_t> critical_pair = std::make_pair(pair.first, *pair.second.begin());
         auto first_polynom = groebner_basis.getPolynom(critical_pair.first);
         auto second_polynom = groebner_basis.getPolynom(critical_pair.second);
-        if (!(version_2 && buchbergCriterion(critical_pair, first_polynom, second_polynom, B, polynoms))){
+        if (!(version_2 && buchbergCriterion(critical_pair, first_polynom, second_polynom, B, polynoms))) {
             auto s_polynom = sPolynom(first_polynom, second_polynom);
             redByPolynoms(groebner_basis, s_polynom);
             if (!s_polynom.isZero()) {
