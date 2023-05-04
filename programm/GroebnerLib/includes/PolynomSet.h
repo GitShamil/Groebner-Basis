@@ -68,7 +68,7 @@ public:
     friend bool redByPolynoms(const PolynomSet<Temp, AnotherC> &, Polynom<Temp, AnotherC> &) noexcept;
 
     template<typename Temp, typename AnotherC>
-    friend PolynomSet<Temp, AnotherC> buchberg(const PolynomSet<Temp, AnotherC> &) noexcept;
+    friend PolynomSet<Temp, AnotherC> buchberg(const PolynomSet<Temp, AnotherC> &, bool) noexcept;
 
     template<typename Temp, typename AnotherC>
     friend PolynomSet<Temp, AnotherC> buchbergV2(const PolynomSet<Temp, AnotherC> &) noexcept;
@@ -227,8 +227,52 @@ bool redByPolynoms(const PolynomSet<Temp, AnotherC> &polynomSet, Polynom<Temp, A
     return number_of_changes > 0;
 }
 
+namespace {
 template<typename Temp, typename AnotherC>
-PolynomSet<Temp, AnotherC> buchberg(const PolynomSet<Temp, AnotherC> &polynoms) noexcept {
+Polynom<Temp, AnotherC> getSPolynomOprdered(const Polynom<Temp, AnotherC> &first_polynom,
+                                            const Polynom<Temp, AnotherC> &second_polynom,
+                                            int64_t index_first, int64_t index_second) {
+    if (index_first < index_second) {
+        return sPolynom(first_polynom, second_polynom);
+    }
+    return sPolynom(second_polynom, first_polynom);
+}
+
+template<typename Temp, typename AnotherC>
+bool buchbergCriterion(const std::pair<int64_t, int64_t> &critical_pair, const Polynom<Temp, AnotherC> &first_polynom,
+                       const Polynom<Temp, AnotherC> &second_polynom,
+                       const std::unordered_map<int64_t, std::unordered_set<int64_t>> &B,
+                       const PolynomSet<Temp, AnotherC> &polynoms) {
+    if (lcm(first_polynom.getMonom(0), second_polynom.getMonom(0)) == first_polynom.getMonom(0) * second_polynom.getMonom(0)) {
+        return true;
+    }
+    int64_t i = 0;
+    auto s_polynom_i_j = sPolynom(first_polynom, second_polynom);
+    for (const auto &polynom : polynoms) {
+        if (i == critical_pair.first || i == critical_pair.second) {
+            continue;
+        }
+        if (!lcm(first_polynom.getMonom(0), second_polynom.getMonom(0)).isDivisibleBy(polynom.getMonom(0))) {
+            continue;
+        }
+        auto s_polynom_i_l = getSPolynomOprdered(first_polynom, polynom, critical_pair.first, i);
+        auto s_polynom_j_l = getSPolynomOprdered(second_polynom, polynom, critical_pair.second, i);
+        auto y_i_j = lcm(first_polynom.getMonom(0), second_polynom.getMonom(0));
+        auto y_l_i = lcm(polynom.getMonom(0), first_polynom.getMonom(0));
+        auto y_l_j = lcm(polynom.getMonom(0), second_polynom.getMonom(0));
+        if (s_polynom_i_j ==
+            Term<Temp>((y_i_j / y_l_i)) * s_polynom_i_l - Term<Temp>((y_i_j / y_l_j)) * s_polynom_j_l) {
+            return true;
+        }
+        ++i;
+    }
+    return false;
+}
+}
+
+
+template<typename Temp, typename AnotherC>
+PolynomSet<Temp, AnotherC> buchberg(const PolynomSet<Temp, AnotherC> &polynoms, bool version_2 = true) noexcept {
     if (polynoms.isGroebnerBasis()) {
         return polynoms;
     }
@@ -243,14 +287,17 @@ PolynomSet<Temp, AnotherC> buchberg(const PolynomSet<Temp, AnotherC> &polynoms) 
     while (!B.empty()) {
         auto pair = *B.begin();
         std::pair<int64_t, int64_t> critical_pair = std::make_pair(pair.first, *pair.second.begin());
-        auto s_polynom = sPolynom(groebner_basis.getPolynom(critical_pair.first),
-                                  groebner_basis.getPolynom(critical_pair.second));
-        redByPolynoms(groebner_basis, s_polynom);
-        if (!s_polynom.isZero()) {
-            groebner_basis.pushBackPolynom(s_polynom);
-            ++t;
-            for (int64_t i = 0; i < t; ++i) {
-                B[i].insert(t);
+        auto first_polynom = groebner_basis.getPolynom(critical_pair.first);
+        auto second_polynom = groebner_basis.getPolynom(critical_pair.second);
+        if (!(version_2 && buchbergCriterion(critical_pair, first_polynom, second_polynom, B, polynoms))){
+            auto s_polynom = sPolynom(first_polynom, second_polynom);
+            redByPolynoms(groebner_basis, s_polynom);
+            if (!s_polynom.isZero()) {
+                groebner_basis.pushBackPolynom(s_polynom);
+                ++t;
+                for (int64_t i = 0; i < t; ++i) {
+                    B[i].insert(t);
+                }
             }
         }
         B[critical_pair.first].erase(critical_pair.second);
