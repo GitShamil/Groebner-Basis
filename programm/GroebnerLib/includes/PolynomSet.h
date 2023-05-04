@@ -14,7 +14,7 @@ namespace gb {
 template<typename Field, typename C = Lex>
 class PolynomSet {
 public:
-    using container = std::vector<Polynom<Field, C>>;
+    using container = std::list<Polynom<Field, C>>;
     using iterator = typename container::iterator;
     using const_iterator = typename container::const_iterator;
 
@@ -38,6 +38,10 @@ public:
     bool isGroebnerBasisSure() const noexcept;
 
     typename container::iterator pushBackPolynom(const Polynom<Field, C> &) noexcept;
+
+    iterator insert(const_iterator, const Polynom<Field, C> &);
+
+    iterator insert(const_iterator, Polynom<Field, C> &&);
 
     void removePolynom(const Polynom<Field, C> &);
 
@@ -82,12 +86,12 @@ template<typename Field, typename C>
 PolynomSet<Field, C>::PolynomSet() = default;
 
 template<typename Field, typename C>
-PolynomSet<Field, C>::PolynomSet(const Polynom<Field, C> &polynom) noexcept{
+PolynomSet<Field, C>::PolynomSet(const Polynom<Field, C> &polynom) noexcept {
     polynoms_.push_back(polynom);
 }
 
 template<typename Field, typename C>
-PolynomSet<Field, C>::PolynomSet(const PolynomSet::container &polynoms) noexcept{
+PolynomSet<Field, C>::PolynomSet(const PolynomSet::container &polynoms) noexcept {
     polynoms_ = polynoms;
 }
 
@@ -98,7 +102,9 @@ const typename PolynomSet<Field, C>::container &PolynomSet<Field, C>::getPolynom
 
 template<typename Field, typename C>
 const Polynom<Field, C> &PolynomSet<Field, C>::getPolynom(int64_t index) const {
-    return polynoms_[index];
+    auto it = polynoms_.begin();
+    std::advance(it, index);
+    return *(it);
 }
 
 template<typename Field, typename C>
@@ -126,8 +132,21 @@ template<typename Field, typename C>
 typename PolynomSet<Field, C>::container::iterator
 PolynomSet<Field, C>::pushBackPolynom(const Polynom<Field, C> &polynom) noexcept {
     polynoms_.push_back(polynom);
-    return polynoms_.end() - 1;
+    return std::prev(polynoms_.end());
 }
+
+template<typename Field, typename C>
+typename PolynomSet<Field, C>::iterator
+PolynomSet<Field, C>::insert(PolynomSet::const_iterator pos, const Polynom<Field, C> &value) {
+    return polynoms_.insert(pos, value);
+}
+
+template<typename Field, typename C>
+typename PolynomSet<Field, C>::iterator
+PolynomSet<Field, C>::insert(PolynomSet::const_iterator pos, Polynom<Field, C> &&value) {
+    return polynoms_.insert(pos, std::move(value));
+}
+
 
 template<typename Field, typename C>
 void PolynomSet<Field, C>::removePolynom(const Polynom<Field, C> &polynom) {
@@ -144,15 +163,6 @@ template<typename Field, typename C>
 typename PolynomSet<Field, C>::iterator PolynomSet<Field, C>::removePolynom(PolynomSet::iterator it) {
     groebner_Basis_ = false;
     return polynoms_.erase(it);
-}
-
-
-template<typename Field, typename C>
-typename PolynomSet<Field, C>::iterator PolynomSet<Field, C>::fastRemovePolynom(PolynomSet::iterator it) {
-    groebner_Basis_ = false;
-    std::swap(*it, *std::prev(end()));
-    polynoms_.resize(polynoms_.size() - 1);
-    return it;
 }
 
 
@@ -269,19 +279,9 @@ PolynomSet<Temp, AnotherC> reduceGroebnerBasis(const PolynomSet<Temp, AnotherC> 
     int64_t number_polynoms = polynoms.size();
     for (int64_t i = 0; i < number_polynoms; i++) {
         auto polynom = std::move(*it);
-        if (it == groebner_basis.begin()) {
-            if (groebner_basis.size() == 1) {
-                break;
-            }
-            *it = Polynom<Temp, AnotherC>((it + 1)->getTerm(0));
-        } else {
-            *it = Polynom<Temp, AnotherC>((it - 1)->getTerm(0));
-        }
+        it = groebner_basis.removePolynom(it);
         if (!oneRedByPolynoms(groebner_basis, polynom)) {
-            *it = std::move(polynom);
-            it++;
-        } else {
-            it = groebner_basis.fastRemovePolynom(it);
+            groebner_basis.pushBackPolynom(std::move(polynom));
         }
     }
     for (it = groebner_basis.begin(); it != groebner_basis.end(); it++) {
@@ -290,16 +290,9 @@ PolynomSet<Temp, AnotherC> reduceGroebnerBasis(const PolynomSet<Temp, AnotherC> 
         Term<Temp> term(coef);
         (*it) *= term;
         auto polynom = std::move(*it);
-        if (it == groebner_basis.begin()) {
-            if (groebner_basis.size() == 1) {
-                break;
-            }
-            *it = *(it + 1);
-        } else {
-            *it = *(it - 1);
-        }
+        it = groebner_basis.removePolynom(it);
         redByPolynoms(groebner_basis, polynom);
-        *it = std::move(polynom);
+        it = groebner_basis.insert(it, polynom);
     }
     groebner_basis.groebner_Basis_ = true;
     return groebner_basis;
