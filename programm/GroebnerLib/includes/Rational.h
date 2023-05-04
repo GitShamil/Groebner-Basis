@@ -7,7 +7,8 @@ namespace gb::fields {
     class Rational {
 
     public:
-        Rational(int64_t = 0, int64_t = 1);
+        Rational() noexcept;
+        Rational(int64_t, int64_t = 1);
 
         const int64_t &getNumerator() const noexcept;
         const int64_t &getDenominator() const noexcept;

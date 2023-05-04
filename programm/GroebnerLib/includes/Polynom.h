@@ -16,9 +16,9 @@ public:
 
     Polynom();
 
-    Polynom(const Term<Field> &);
+    Polynom(const Term<Field> &) noexcept;
 
-    Polynom(const container &);
+    Polynom(const container &) noexcept;
 
     const Term<Field> &getTerm(int64_t index = 0) const;
 
@@ -105,13 +105,13 @@ template<typename Field, typename C>
 Polynom<Field, C>::Polynom() = default;
 
 template<typename Field, typename C>
-Polynom<Field, C>::Polynom(const Term<Field> &term) {
+Polynom<Field, C>::Polynom(const Term<Field> &term) noexcept{
     if (!term.getCoefficient().isZero())
         terms_.insert(term);
 }
 
 template<typename Field, typename C>
-Polynom<Field, C>::Polynom(const Polynom::container &another_terms) {
+Polynom<Field, C>::Polynom(const Polynom::container &another_terms) noexcept{
     terms_ = another_terms;
 }
 

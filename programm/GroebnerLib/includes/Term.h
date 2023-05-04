@@ -12,9 +12,9 @@ class Term {
 public:
     Term();
 
-    Term(Field);
+    Term(Field) noexcept;
 
-    Term(Field, const Monom &);
+    Term(Field, const Monom &) noexcept;
 
     Term(const Monom &);
 
@@ -86,12 +86,12 @@ Term<Field>::Term() = default;
 
 
 template<typename Field>
-Term<Field>::Term(Field num) {
+Term<Field>::Term(Field num) noexcept{
     coef_ = num;
 }
 
 template<typename Field>
-Term<Field>::Term(Field num, const Monom &monom) {
+Term<Field>::Term(Field num, const Monom &monom) noexcept{
     coef_ = num;
     monom_ = monom;
 }

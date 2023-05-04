@@ -20,9 +20,9 @@ public:
 
     PolynomSet();
 
-    PolynomSet(const Polynom<Field, C> &);
+    PolynomSet(const Polynom<Field, C> &) noexcept;
 
-    PolynomSet(const container &);
+    PolynomSet(const container &) noexcept;
 
     const container &getPolynoms() const noexcept;
 
@@ -82,12 +82,12 @@ template<typename Field, typename C>
 PolynomSet<Field, C>::PolynomSet() = default;
 
 template<typename Field, typename C>
-PolynomSet<Field, C>::PolynomSet(const Polynom<Field, C> &polynom) {
+PolynomSet<Field, C>::PolynomSet(const Polynom<Field, C> &polynom) noexcept{
     polynoms_.push_back(polynom);
 }
 
 template<typename Field, typename C>
-PolynomSet<Field, C>::PolynomSet(const PolynomSet::container &polynoms) {
+PolynomSet<Field, C>::PolynomSet(const PolynomSet::container &polynoms) noexcept{
     polynoms_ = polynoms;
 }
 

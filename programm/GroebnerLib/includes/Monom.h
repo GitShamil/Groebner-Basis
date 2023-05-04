@@ -8,7 +8,7 @@ namespace gb {
 class Monom {
 public:
     Monom();
-    Monom(const std::vector<int64_t>&);
+    Monom(const std::vector<int64_t>&) noexcept;
 
     int64_t operator[](int64_t) const;
 

@@ -6,7 +6,7 @@
 
 gb::Monom::Monom() = default;
 
-gb::Monom::Monom(const std::vector<int64_t> &input) {
+gb::Monom::Monom(const std::vector<int64_t> &input) noexcept {
     data_ = input;
 }
 

@@ -4,43 +4,45 @@
 #include "Utils.h"
 
 namespace gb::fields {
-template<uint64_t Order>
+template<int64_t Mod>
 class Modular {
 public:
-    Modular(int64_t = 0);
+    Modular() = default;
 
-    const int64_t &getNumber() const noexcept;
+    Modular(int64_t) noexcept;
+
+    int64_t getNumber() const noexcept;
 
     bool isZero() const noexcept;
 
-    Modular<Order> operator+() const noexcept;
+    Modular<Mod> operator+() const noexcept;
 
-    Modular<Order> operator-() const noexcept;
+    Modular<Mod> operator-() const noexcept;
 
-    Modular<Order> &operator+=(const Modular &) noexcept;
+    Modular<Mod> &operator+=(const Modular &) noexcept;
 
-    Modular<Order> &operator-=(const Modular &) noexcept;
+    Modular<Mod> &operator-=(const Modular &) noexcept;
 
-    Modular<Order> &operator*=(const Modular &) noexcept;
+    Modular<Mod> &operator*=(const Modular &) noexcept;
 
-    Modular<Order> &operator/=(const Modular &);
+    Modular<Mod> &operator/=(const Modular &);
 
-    friend Modular<Order> operator+(Modular left, const Modular &right) noexcept {
+    friend Modular<Mod> operator+(Modular left, const Modular &right) noexcept {
         left += right;
         return left;
     }
 
-    friend Modular<Order> operator-(Modular left, const Modular &right) noexcept {
+    friend Modular<Mod> operator-(Modular left, const Modular &right) noexcept {
         left -= right;
         return left;
     }
 
-    friend Modular<Order> operator*(Modular left, const Modular &right) noexcept {
+    friend Modular<Mod> operator*(Modular left, const Modular &right) noexcept {
         left *= right;
         return left;
     }
 
-    friend Modular<Order> operator/(Modular left, const Modular &right) {
+    friend Modular<Mod> operator/(Modular left, const Modular &right) {
         left /= right;
         return left;
     }
@@ -69,11 +71,11 @@ public:
         return !(left == right);
     }
 
-    template<uint64_t OtherBase>
-    friend Modular<OtherBase> pow(const Modular<OtherBase> &, const uint64_t &);
+    template<int64_t OtherMod>
+    friend Modular<OtherMod> pow(const Modular<OtherMod> &, const int64_t &);
 
-    template<uint64_t OtherBase>
-    friend Modular<OtherBase> inverseElement(const Modular<OtherBase> &);
+    template<int64_t OtherMod>
+    friend Modular<OtherMod> inverseElement(const Modular<OtherMod> &);
 
 private:
     void reduce_() noexcept;
@@ -81,18 +83,18 @@ private:
     int64_t number_{};
 };
 
-template<uint64_t Order>
-Modular<Order>::Modular(int64_t num) {
+template<int64_t Order>
+Modular<Order>::Modular(int64_t num) noexcept{
     number_ = num;
     reduce_();
 }
 
-template<uint64_t Order>
-const int64_t &Modular<Order>::getNumber() const noexcept {
+template<int64_t Order>
+int64_t Modular<Order>::getNumber() const noexcept {
     return number_;
 }
 
-template<uint64_t Order>
+template<int64_t Order>
 void Modular<Order>::reduce_() noexcept {
     if (getNumber() < 0) {
         number_ += (-getNumber() / Order + 1) * Order;
@@ -100,46 +102,46 @@ void Modular<Order>::reduce_() noexcept {
     number_ = getNumber() % Order;
 }
 
-template<uint64_t Order>
+template<int64_t Order>
 Modular<Order> Modular<Order>::operator+() const noexcept {
     return *this;
 }
 
-template<uint64_t Order>
+template<int64_t Order>
 Modular<Order> Modular<Order>::operator-() const noexcept {
     return {Order - getNumber()};
 }
 
-template<uint64_t Order>
+template<int64_t Order>
 Modular<Order> &Modular<Order>::operator+=(const Modular &another) noexcept {
     number_ += another.getNumber();
     reduce_();
     return *this;
 }
 
-template<uint64_t Order>
+template<int64_t Order>
 Modular<Order> &Modular<Order>::operator-=(const Modular &another) noexcept {
     number_ -= another.getNumber();
     reduce_();
     return *this;
 }
 
-template<uint64_t Order>
+template<int64_t Order>
 Modular<Order> &Modular<Order>::operator*=(const Modular &another) noexcept {
     number_ *= another.getNumber();
     reduce_();
     return *this;
 }
 
-template<uint64_t Order>
+template<int64_t Order>
 Modular<Order> &Modular<Order>::operator/=(const Modular &another) {
     number_ *= inverseElement(another).getNumber();
     reduce_();
     return *this;
 }
 
-template<uint64_t Order>
-Modular<Order> pow(const Modular<Order> &num, const uint64_t &power) {
+template<int64_t Order>
+Modular<Order> pow(const Modular<Order> &num, const int64_t &power) {
     if (power < 0) {
         return pow(inverseElement(num), -power);
     }
@@ -153,7 +155,7 @@ Modular<Order> pow(const Modular<Order> &num, const uint64_t &power) {
     return tmp * tmp;
 }
 
-template<uint64_t Order>
+template<int64_t Order>
 Modular<Order> inverseElement(const Modular<Order> &num) {
     if (num.getNumber() == 0) {
         throw std::invalid_argument("Trying inverse zero in modul field");
@@ -161,7 +163,7 @@ Modular<Order> inverseElement(const Modular<Order> &num) {
     return pow(num, Order - 2);
 }
 
-template<uint64_t Order>
+template<int64_t Order>
 bool Modular<Order>::isZero() const noexcept {
     return number_ == 0;
 }
