@@ -4,9 +4,6 @@
 #include "Utils.h"
 
 namespace gb {
-
-
-
 class Monom {
 public:
     Monom();
@@ -37,6 +34,8 @@ public:
     friend bool operator!=(const Monom&, const Monom&) noexcept;
 
     friend Monom lcm(const Monom&, const Monom&) noexcept;
+
+    friend std::ostream& operator<<(std::ostream&, const Monom&) noexcept;
 private:
     friend size_t max_size(const Monom& one,const Monom& two);
     void resizeTo(const Monom& another);

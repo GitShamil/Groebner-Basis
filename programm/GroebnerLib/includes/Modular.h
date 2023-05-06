@@ -77,6 +77,9 @@ public:
     template<int64_t OtherMod>
     friend Modular<OtherMod> inverseElement(const Modular<OtherMod> &);
 
+    template<int64_t OtherMod>
+    friend std::ostream &operator<<(std::ostream &, const Modular<OtherMod> &) noexcept;
+
 private:
     void reduce_() noexcept;
 
@@ -84,7 +87,7 @@ private:
 };
 
 template<int64_t Order>
-Modular<Order>::Modular(int64_t num) noexcept{
+Modular<Order>::Modular(int64_t num) noexcept {
     number_ = num;
     reduce_();
 }
@@ -166,6 +169,11 @@ Modular<Order> inverseElement(const Modular<Order> &num) {
 template<int64_t Order>
 bool Modular<Order>::isZero() const noexcept {
     return number_ == 0;
+}
+
+template<int64_t OtherMod>
+std::ostream &operator<<(std::ostream &one, const Modular<OtherMod> &num) noexcept {
+    return one << num.getNumber();
 }
 
 

@@ -34,6 +34,8 @@ namespace gb::fields {
         Rational& operator/=(const Rational&);
         friend Rational operator/(const Rational&, const Rational&);
 
+        friend std::ostream &operator<<(std::ostream &, const Rational &) noexcept;
+
     private:
         void reduce_();
 

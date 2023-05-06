@@ -10,8 +10,8 @@ gb::Monom::Monom(const std::vector<int64_t> &input) noexcept {
     data_ = input;
 }
 
-gb::Monom::Monom(std::initializer_list<int64_t> l) noexcept{
-    for(auto el: l) {
+gb::Monom::Monom(std::initializer_list<int64_t> l) noexcept {
+    for (auto el : l) {
         data_.push_back(el);
     }
 }
@@ -25,7 +25,7 @@ void gb::Monom::resizeTo(const gb::Monom &another) {
 }
 
 int64_t gb::Monom::operator[](int64_t index) const {
-    if (index >= data_.size()){
+    if (index >= data_.size()) {
         return 0;
     }
     return data_[index];
@@ -121,6 +121,28 @@ gb::Monom gb::lcm(const gb::Monom &one, const gb::Monom &two) noexcept {
         answer[i] = std::max(one[i], two[i]);
     }
     return answer;
+}
+
+std::ostream &gb::operator<<(std::ostream &out, const gb::Monom &monom) noexcept {
+    if (monom.isInteger()) {
+        return out << 1;
+    }
+    int64_t i = 0;
+    bool need_star = false;
+    for (auto el : monom.getData()) {
+        ++i;
+        if (el != 0) {
+            if (need_star) {
+                out << '*';
+            }
+            need_star = true;
+            out << "x_(" << i << ')';
+            if (el > 1) {
+                out << "^{" << el << '}';
+            }
+        }
+    }
+    return out;
 }
 
 

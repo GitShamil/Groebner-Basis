@@ -2,7 +2,7 @@
 #include "../includes/Rational.h"
 
 namespace gb::fields {
-Rational::Rational(int64_t numerator, int64_t denominator){
+Rational::Rational(int64_t numerator, int64_t denominator) {
     if (denominator == 0) {
         throw std::invalid_argument("Division by zero.");
     }
@@ -122,6 +122,18 @@ Rational operator/(const Rational &one, const Rational &two) {
 
 bool Rational::isZero() const noexcept {
     return numerator_ == 0;
+}
+
+std::ostream &operator<<(std::ostream &out, const Rational &num) noexcept {
+    if (num.getDenominator() == 1) {
+        return out << num.getNumerator();
+    }
+    if (num.getNumerator() < 0) {
+        out << "-(" << -num.getNumerator();
+    } else {
+        out << '(' << num.getNumerator();
+    }
+    return out << " / " << num.getDenominator() << ')';
 }
 
 } // namespace gb::fields

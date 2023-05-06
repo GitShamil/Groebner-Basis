@@ -4,6 +4,8 @@
 #define PROGRAMM_TERM_H
 
 #include "Monom.h"
+#include "Rational.h"
+#include "Modular.h"
 
 namespace gb {
 
@@ -75,6 +77,9 @@ public:
     template<typename Temp>
     friend bool operator!=(const Temp &, const Term<Temp> &) noexcept;
 
+    template<typename Temp>
+    friend std::ostream &operator<<(std::ostream &, const Term<Temp> &) noexcept;
+
 
 private:
     Monom monom_{};
@@ -86,12 +91,12 @@ Term<Field>::Term() = default;
 
 
 template<typename Field>
-Term<Field>::Term(Field num) noexcept{
+Term<Field>::Term(Field num) noexcept {
     coef_ = num;
 }
 
 template<typename Field>
-Term<Field>::Term(Field num, const Monom &monom) noexcept{
+Term<Field>::Term(Field num, const Monom &monom) noexcept {
     coef_ = num;
     monom_ = monom;
 }
@@ -228,6 +233,21 @@ bool operator==(const Field &num, const Term<Field> &term) noexcept {
 template<typename Field>
 bool operator!=(const Field &num, const Term<Field> &term) noexcept {
     return !(term == num);
+}
+
+template<typename Temp>
+std::ostream &operator<<(std::ostream &out, const Term<Temp> &term) noexcept {
+    if (term.isInteger()) {
+        return out << term.getCoefficient();
+    }
+
+    if (term.getCoefficient() == Temp(-1)) {
+        out << '-';
+    } else if (term.getCoefficient() != Temp(1)){
+        out << term.getCoefficient() << '*';
+    }
+
+    return out << term.getMonom();
 }
 
 
