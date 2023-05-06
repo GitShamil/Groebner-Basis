@@ -80,6 +80,9 @@ public:
     friend Polynom<Temp, AnotherC> operator*(const Term<Temp> &, const Polynom<Temp, AnotherC> &) noexcept;
 
     template<typename Temp, typename AnotherC>
+    friend bool operator<(const Polynom<Temp, AnotherC> &, const Polynom<Temp, AnotherC> &) noexcept;
+
+    template<typename Temp, typename AnotherC>
     friend bool operator==(const Polynom<Temp, AnotherC> &, const Polynom<Temp, AnotherC> &) noexcept;
 
     template<typename Temp, typename AnotherC>
@@ -96,6 +99,9 @@ public:
 
     template<typename Temp, typename AnotherC>
     friend bool operator!=(const Term<Temp> &, const Polynom<Temp, AnotherC> &) noexcept;
+
+    template<typename Temp, typename AnotherC>
+    friend std::ostream& operator<<(std::ostream&, const Polynom<Temp, AnotherC>&) noexcept;
 
 private:
 
@@ -333,6 +339,19 @@ Polynom<Temp, AnotherC> operator*(const Term<Temp> &term, const Polynom<Temp, An
 }
 
 template<typename Temp, typename AnotherC>
+bool operator<(const Polynom<Temp, AnotherC> & one, const Polynom<Temp, AnotherC> & two) noexcept {
+    AnotherC comp;
+    auto left_it = one.getTerms().begin();
+    auto right_it = two.getTerms().begin();
+    for (; left_it != one.getTerms().end() && right_it != two.getTerms().end(); ++left_it, ++right_it) {
+        if (comp(*left_it, *right_it) || comp(*right_it, *left_it)) {
+            return comp(*left_it, *right_it);
+        }
+    }
+    return one.getTerms().size() < two.getTerms().size();
+}
+
+template<typename Temp, typename AnotherC>
 bool operator==(const Polynom<Temp, AnotherC> &one, const Polynom<Temp, AnotherC> &two) noexcept {
     return one.getTerms() == two.getTerms();
 }
@@ -362,6 +381,20 @@ bool operator!=(const Term<Temp> &term, const Polynom<Temp, AnotherC> &polynom) 
     return !(polynom == term);
 }
 
+template<typename Temp, typename AnotherC>
+std::ostream &operator<<(std::ostream & out, const Polynom<Temp, AnotherC> & polynom) noexcept {
+    if (polynom.isZero()){
+        return out << Temp(0);
+    }
+
+    for (const auto& term : polynom.getTerms()) {
+        if (term != polynom.getTerm(0) && term.getCoefficient() > Temp(0)) {
+            out << '+';
+        }
+        out << term;
+    }
+    return out;
+}
 
 }
 
