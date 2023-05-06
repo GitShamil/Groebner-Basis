@@ -64,6 +64,9 @@ public:
     const_iterator end() const noexcept;
 
     template<typename Temp, typename AnotherC>
+    friend bool operator==(const PolynomSet<Temp, AnotherC> &one, const PolynomSet<Temp, AnotherC> &two) noexcept;
+
+    template<typename Temp, typename AnotherC>
     friend bool oneRedByPolynoms(const PolynomSet<Temp, AnotherC> &, Polynom<Temp, AnotherC> &) noexcept;
 
     template<typename Temp, typename AnotherC>
@@ -78,6 +81,8 @@ public:
     template<typename Temp, typename AnotherC>
     friend PolynomSet<Temp, AnotherC> reduceGroebnerBasis(const PolynomSet<Temp, AnotherC> &) noexcept;
 
+    template<typename Temp, typename AnotherC>
+    friend std::ostream &operator<<(std::ostream &, const PolynomSet<Temp, AnotherC> &) noexcept;
 
 private:
     bool groebner_Basis_ = false;
@@ -206,6 +211,16 @@ template<typename Field, typename C>
 typename PolynomSet<Field, C>::container::const_iterator PolynomSet<Field, C>::end() const noexcept {
     return polynoms_.end();
 }
+
+template<typename Temp, typename AnotherC>
+bool operator==(const PolynomSet<Temp, AnotherC> &one, const PolynomSet<Temp, AnotherC> &two) noexcept {
+    PolynomSet<Temp, AnotherC> one_copy = one;
+    PolynomSet<Temp, AnotherC> two_copy = two;
+    one_copy.polynoms_.sort();
+    two_copy.polynoms_.sort();
+    return one_copy.getPolynoms() == two_copy.getPolynoms();
+}
+
 
 template<typename Temp, typename AnotherC>
 bool oneRedByPolynoms(const PolynomSet<Temp, AnotherC> &polynomSet, Polynom<Temp, AnotherC> &polynom) noexcept {
@@ -354,6 +369,15 @@ PolynomSet<Temp, AnotherC> reduceGroebnerBasis(const PolynomSet<Temp, AnotherC> 
     groebner_basis.groebner_Basis_ = true;
     return groebner_basis;
 }
+
+template<typename Temp, typename AnotherC>
+std::ostream &operator<<(std::ostream &out, const PolynomSet<Temp, AnotherC> &polynoms) noexcept {
+    out << "{\n";
+    for (const auto &polynom : polynoms) {
+        out << polynom << "\n";
+    }
+    out << "}\n";
+};
 
 
 }
