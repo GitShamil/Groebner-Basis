@@ -49,7 +49,7 @@ public:
 
     iterator removePolynom(iterator);
 
-    iterator fastRemovePolynom(iterator);
+//    iterator fastRemovePolynom(iterator);
 
     const_iterator find(const Polynom<Field, C> &) const noexcept;
 
@@ -241,13 +241,16 @@ bool oneRedByPolynoms(const PolynomSet<Temp, AnotherC> &polynomSet, Polynom<Temp
 
 template<typename Temp, typename AnotherC>
 bool redByPolynoms(const PolynomSet<Temp, AnotherC> &polynomSet, Polynom<Temp, AnotherC> &polynom) noexcept {
-    bool changed;
     int number_of_changes = -1;
+    Polynom remain = {};
     do {
         ++number_of_changes;
-        changed = false;
-        changed = oneRedByPolynoms(polynomSet, polynom);
-    } while (changed);
+        if (!oneRedByPolynoms(polynomSet, polynom)) {
+            remain += polynom.getTerm(0);
+            polynom -= polynom.getTerm(0);
+        }
+    } while (!polynom.isZero());
+    polynom = std::move(remain);
     return number_of_changes > 0;
 }
 
