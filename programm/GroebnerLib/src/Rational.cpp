@@ -99,7 +99,7 @@ Rational &Rational::operator*=(const Rational &other) noexcept {
 }
 
 Rational operator*(const Rational &one, const Rational &two) noexcept {
-    return {one.getNumerator() * two.getNumerator(), one.getNumerator() * two.getDenominator()};
+    return {one.getNumerator() * two.getNumerator(), one.getDenominator() * two.getDenominator()};
 }
 
 Rational &Rational::operator/=(const Rational &other) {
