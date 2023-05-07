@@ -112,6 +112,7 @@ Rational &Rational::operator/=(const Rational &other) {
         numerator_ = -numerator_;
         denominator_ = -denominator_;
     }
+    reduce_();
     return *this;
 }
 

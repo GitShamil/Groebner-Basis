@@ -377,6 +377,7 @@ std::ostream &operator<<(std::ostream &out, const PolynomSet<Temp, AnotherC> &po
         out << polynom << "\n";
     }
     out << "}\n";
+    return out;
 };
 
 
