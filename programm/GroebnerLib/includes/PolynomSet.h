@@ -26,6 +26,9 @@ public:
 
     PolynomSet(std::initializer_list<Polynom<Field, C>>) noexcept;
 
+    template<typename AnotherC>
+    PolynomSet(const PolynomSet<Field, AnotherC> &) noexcept;
+
     const container &getPolynoms() const noexcept;
 
     const Polynom<Field, C> &getPolynom(int64_t = 0) const;
@@ -54,6 +57,8 @@ public:
     const_iterator find(const Polynom<Field, C> &) const noexcept;
 
     iterator find(const Polynom<Field, C> &) noexcept;
+
+    bool isPolynomInIdeal(Polynom<Field, C>) const noexcept;
 
     iterator begin() noexcept;
 
@@ -106,6 +111,16 @@ template<typename Field, typename C>
 PolynomSet<Field, C>::PolynomSet(std::initializer_list<Polynom<Field, C>> l) noexcept {
     for (auto &polynom : l) {
         polynoms_.push_back(polynom);
+    }
+}
+
+
+template<typename Field, typename C>
+template<typename AnotherC>
+PolynomSet<Field, C>::PolynomSet(const PolynomSet<Field, AnotherC> &another_set) noexcept {
+    for (auto &polynom : another_set) {
+        Polynom<Field, C> polynom_c(polynom);
+        this->pushBackPolynom(polynom_c);
     }
 }
 
@@ -191,6 +206,17 @@ typename PolynomSet<Field, C>::iterator PolynomSet<Field, C>::find(const Polynom
     return std::find(polynoms_.begin(), polynoms_.end(), polynom);
 }
 
+template<typename Field, typename C>
+bool PolynomSet<Field, C>::isPolynomInIdeal(Polynom<Field, C> polynom) const noexcept {
+    if (isGroebnerBasis()) {
+        redByPolynoms(*this, polynom);
+        return polynom.isZero();
+    }
+    auto groebner_basis = buchberg(*this);
+    redByPolynoms(groebner_basis, polynom);
+    return polynom.isZero();
+};
+
 
 template<typename Field, typename C>
 typename PolynomSet<Field, C>::container::iterator PolynomSet<Field, C>::begin() noexcept {
@@ -241,15 +267,15 @@ bool oneRedByPolynoms(const PolynomSet<Temp, AnotherC> &polynomSet, Polynom<Temp
 
 template<typename Temp, typename AnotherC>
 bool redByPolynoms(const PolynomSet<Temp, AnotherC> &polynomSet, Polynom<Temp, AnotherC> &polynom) noexcept {
-    int number_of_changes = -1;
-    Polynom remain = {};
-    do {
+    int number_of_changes = 0;
+    Polynom<Temp, AnotherC> remain = {};
+    while (!polynom.isZero()){
         ++number_of_changes;
         if (!oneRedByPolynoms(polynomSet, polynom)) {
             remain += polynom.getTerm(0);
             polynom -= polynom.getTerm(0);
         }
-    } while (!polynom.isZero());
+    }
     polynom = std::move(remain);
     return number_of_changes > 0;
 }
@@ -381,7 +407,7 @@ std::ostream &operator<<(std::ostream &out, const PolynomSet<Temp, AnotherC> &po
     }
     out << "}\n";
     return out;
-};
+}
 
 
 }

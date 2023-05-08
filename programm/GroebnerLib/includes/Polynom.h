@@ -20,6 +20,9 @@ public:
 
     Polynom(const container &) noexcept;
 
+    template<typename AnotherC>
+    Polynom(const Polynom<Field, AnotherC> &) noexcept;
+
     Polynom(std::initializer_list<Term<Field>>) noexcept;
 
     const Term<Field> &getTerm(int64_t index = 0) const;
@@ -101,7 +104,7 @@ public:
     friend bool operator!=(const Term<Temp> &, const Polynom<Temp, AnotherC> &) noexcept;
 
     template<typename Temp, typename AnotherC>
-    friend std::ostream& operator<<(std::ostream&, const Polynom<Temp, AnotherC>&) noexcept;
+    friend std::ostream &operator<<(std::ostream &, const Polynom<Temp, AnotherC> &) noexcept;
 
 private:
 
@@ -113,20 +116,28 @@ template<typename Field, typename C>
 Polynom<Field, C>::Polynom() = default;
 
 template<typename Field, typename C>
-Polynom<Field, C>::Polynom(const Term<Field> &term) noexcept{
+Polynom<Field, C>::Polynom(const Term<Field> &term) noexcept {
     if (!term.getCoefficient().isZero())
         terms_.insert(term);
 }
 
 template<typename Field, typename C>
-Polynom<Field, C>::Polynom(const Polynom::container &another_terms) noexcept{
+Polynom<Field, C>::Polynom(const Polynom::container &another_terms) noexcept {
     terms_ = another_terms;
 }
 
 template<typename Field, typename C>
-Polynom<Field, C>::Polynom(std::initializer_list<Term<Field>> l) noexcept{
-    for (auto& term : l){
+Polynom<Field, C>::Polynom(std::initializer_list<Term<Field>> l) noexcept {
+    for (auto &term : l) {
         terms_.insert(term);
+    }
+}
+
+template<typename Field, typename C>
+template<typename AnotherC>
+Polynom<Field, C>::Polynom(const Polynom<Field, AnotherC> &another) noexcept {
+    for (auto &term : another.getTerms()) {
+        (*this) += term;
     }
 }
 
@@ -168,7 +179,7 @@ Polynom<Temp, AnotherC> sPolynom(const Polynom<Temp, AnotherC> &one, const Polyn
     if (one.isZero() || two.isZero()) {
         throw std::runtime_error("No S-Polynomial from 0.");
     }
-    auto lead_lcm = Term<Temp>(Temp(1),lcm(one.getMonom(0), two.getMonom(0)));
+    auto lead_lcm = Term<Temp>(Temp(1), lcm(one.getMonom(0), two.getMonom(0)));
     auto m1 = lead_lcm / one.getTerm(0);
     auto m2 = lead_lcm / two.getTerm(0);
     return one * m1 - two * m2;
@@ -339,7 +350,7 @@ Polynom<Temp, AnotherC> operator*(const Term<Temp> &term, const Polynom<Temp, An
 }
 
 template<typename Temp, typename AnotherC>
-bool operator<(const Polynom<Temp, AnotherC> & one, const Polynom<Temp, AnotherC> & two) noexcept {
+bool operator<(const Polynom<Temp, AnotherC> &one, const Polynom<Temp, AnotherC> &two) noexcept {
     AnotherC comp;
     auto left_it = one.getTerms().begin();
     auto right_it = two.getTerms().begin();
@@ -382,12 +393,12 @@ bool operator!=(const Term<Temp> &term, const Polynom<Temp, AnotherC> &polynom) 
 }
 
 template<typename Temp, typename AnotherC>
-std::ostream &operator<<(std::ostream & out, const Polynom<Temp, AnotherC> & polynom) noexcept {
-    if (polynom.isZero()){
+std::ostream &operator<<(std::ostream &out, const Polynom<Temp, AnotherC> &polynom) noexcept {
+    if (polynom.isZero()) {
         return out << Temp(0);
     }
 
-    for (const auto& term : polynom.getTerms()) {
+    for (const auto &term : polynom.getTerms()) {
         if (term != polynom.getTerm(0) && term.getCoefficient() > Temp(0)) {
             out << '+';
         }
@@ -395,6 +406,7 @@ std::ostream &operator<<(std::ostream & out, const Polynom<Temp, AnotherC> & pol
     }
     return out;
 }
+
 
 }
 
