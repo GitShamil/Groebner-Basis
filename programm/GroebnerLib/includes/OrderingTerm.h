@@ -8,8 +8,8 @@ class Lex {
 public:
     template<typename Field>
     bool operator()(const Term<Field> &one, const Term<Field> &two) const noexcept {
-        size_t minim_size = std::min(one.size(), two.size());
-        for (size_t i = 0; i < minim_size; ++i) {
+        size_t maxim_size = std::max(one.size(), two.size());
+        for (size_t i = 0; i < maxim_size; ++i) {
             if (one[i] != two[i]) {
                 return one[i] < two[i];
             }
@@ -30,8 +30,8 @@ public:
         if (deg_one > deg_two){
             return false;
         }
-        size_t minim_size = std::min(one.size(), two.size());
-        for (size_t i = 0; i < minim_size; ++i) {
+        size_t maxim_size = std::max(one.size(), two.size());
+        for (size_t i = 0; i < maxim_size; ++i) {
             if (one[i] != two[i]) {
                 return one[i] < two[i];
             }
