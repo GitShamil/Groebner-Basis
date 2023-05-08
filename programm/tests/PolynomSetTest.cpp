@@ -109,3 +109,17 @@ TEST_F(PolynomSetFixture, findTest) {
     ASSERT_NE(a.find(included), a.end());
 }
 
+TEST_F(PolynomSetFixture, IsPolynomInIdealTest) {
+    Polynom polynom1 = a.getPolynom(0) * a.getPolynom(1) + a.getPolynom(1);
+    ASSERT_TRUE(a.isPolynomInIdeal(polynom1));
+    Polynom polynom2 = a.getPolynom(0) * a.getPolynom(1) + b.getPolynom(0);
+    ASSERT_FALSE(a.isPolynomInIdeal(polynom2));
+    Polynom polynom3 = a.getPolynom(0) * a.getPolynom(1) + b.getPolynom(0) * a.getPolynom(0);
+    ASSERT_TRUE(a.isPolynomInIdeal(polynom3));
+    Polynom polynom4 = b.getPolynom(0) * b.getPolynom(1) + b.getPolynom(2) * a.getPolynom(0);
+    ASSERT_TRUE(b.isPolynomInIdeal(polynom4));
+    Polynom polynom5 = b.getPolynom(0) * b.getPolynom(1) + b.getPolynom(2) * a.getPolynom(0) + a.getPolynom(0);
+    ASSERT_FALSE(b.isPolynomInIdeal(polynom5));
+}
+
+
