@@ -55,6 +55,8 @@ public:
 
     iterator find(const Polynom<Field, C> &) noexcept;
 
+    bool isPolynomInIdeal(const Polynom<Field, C> &) const noexcept;
+
     iterator begin() noexcept;
 
     iterator end() noexcept;
@@ -190,6 +192,17 @@ template<typename Field, typename C>
 typename PolynomSet<Field, C>::iterator PolynomSet<Field, C>::find(const Polynom<Field, C> &polynom) noexcept {
     return std::find(polynoms_.begin(), polynoms_.end(), polynom);
 }
+
+template<typename Field, typename C>
+bool PolynomSet<Field, C>::isPolynomInIdeal(Polynom<Field, C> polynom) const noexcept {
+    if (isGroebnerBasis()){
+        redByPolynoms(*this, polynom);
+        return polynom.isZero();
+    }
+    auto groebner_basis = buchberg(*this);
+    redByPolynoms(groebner_basis, polynom);
+    return polynom.isZero();
+};
 
 
 template<typename Field, typename C>
@@ -381,7 +394,9 @@ std::ostream &operator<<(std::ostream &out, const PolynomSet<Temp, AnotherC> &po
     }
     out << "}\n";
     return out;
-};
+}
+
+
 
 
 }
