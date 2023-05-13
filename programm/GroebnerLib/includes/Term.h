@@ -207,7 +207,7 @@ Term<Field> operator*(const Term<Field> &term, const Field &num) noexcept {
 
 template<typename Field>
 bool operator==(const Term<Field> &one, const Term<Field> &two) noexcept {
-    return one.monom_ == two.monom_ && one.coef_ == two.coef_;
+    return (one.getCoefficient().isZero() || one.monom_ == two.monom_) && one.coef_ == two.coef_;
 }
 
 template<typename Field>
